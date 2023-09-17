@@ -273,9 +273,6 @@ void Simulation::displayStatistics() const {
         cout << "Teller " << i + 1 << " Statistics:" << endl;
         cout << "-----------------------------------------" << endl;
         cout << "Number of customers served: " << customersServedByTeller[i] << endl;
-
-        cout << "Teller idle time: " << tellerIdleTime[i] << "  " << "Total Time: " << totalTime << "  " << endl;
-
         float idleRate = (tellerIdleTime[i] / totalTime) * 100;
         cout << "Idle rate: " << idleRate << "%" << endl;
         cout << "-----------------------------------------" << endl;
