@@ -119,7 +119,7 @@ bool Simulation::assignCustomerToTeller(const Customer& customer) {
         int tellerIndex = (startIndex + i) % numTellers;
         
         if (tellers[tellerIndex].isIdle()) {
-            // Serve the customer using this teller
+            // Serve the customer using teller
             tellers[tellerIndex].serve(customer, simulationClock);
             customersServedByTeller[tellerIndex]++;
             

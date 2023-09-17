@@ -38,7 +38,8 @@ int main() {
     }
 
     file.close();
-
+    
+    // Running simulation after enqueuing
     bankSimulation.runSimulation();
 
 
