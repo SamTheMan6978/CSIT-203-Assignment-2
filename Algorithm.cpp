@@ -142,41 +142,56 @@ bool Simulation::assignCustomerToTeller(const Customer& customer) {
 
 
 void Simulation::runSimulation() {
+    // Create a Customer object to hold the current customer being processed.
     Customer currentCustomer;
 
+    // Continue the simulation until there are no customers left in the queue or any active tellers.
     while (!customerQueue.isEmpty() || anyTellerActive()) {
+
+        // Initialize the time for the next event (either a customer arrival or teller finishing) to a default invalid value.
         float nextEventTime = -1;
 
+        // Check if there's a customer in the queue and determine the next customer's arrival time.
         if (!customerQueue.isEmpty() && (nextEventTime < 0 || customerQueue.peek().arrivalTime < nextEventTime)) {
             nextEventTime = customerQueue.peek().arrivalTime;
         }
+
+        // Loop through each teller to determine when they will finish serving their current customer.
         for (int i = 0; i < numTellers; i++) {
             if (!tellers[i].isIdle() && (nextEventTime < 0 || tellers[i].endTime < nextEventTime)) {
                 nextEventTime = tellers[i].endTime;
             }
         }
 
+        // Calculate the time elapsed since the last event.
         float elapsedTime = nextEventTime - simulationClock;
+
+        // Update the running sum of the queue length over time.
         runningQueueLengthSum += customerQueue.size() * elapsedTime;
 
-        // Check and update the maxQueueLength here
+        // Update the maximum queue length if the current queue size exceeds it.
         if (customerQueue.size() > maxQueueLength) {
             maxQueueLength = customerQueue.size();
         }
 
-        // Update tellers' status and their idle time
+        // For each teller, check their status and update their idle time.
         for (int i = 0; i < numTellers; i++) {
             if (!tellers[i].isIdle()) {
-                tellerCompletion(i); // Use the tellerCompletion method here
+                // If a teller has completed serving a customer, process the completion.
+                tellerCompletion(i);
             }
 
             if (tellers[i].isIdle()) {
+                // Update the idle time for the teller.
                 float actualIdleTime = nextEventTime - tellerBecameIdleAt[i];
                 tellerIdleTime[i] += actualIdleTime;
-                tellerBecameIdleAt[i] = nextEventTime;  // Reset the idle start time to avoid double counting
+
+                // Reset the time at which the teller became idle.
+                tellerBecameIdleAt[i] = nextEventTime;
             }
         }
 
+        // If customers in the queue are ready to be served at the next event time, assign them to available tellers.
         if (!customerQueue.isEmpty() && customerQueue.peek().arrivalTime == nextEventTime) {
             while (!customerQueue.isEmpty() && customerQueue.peek().arrivalTime == nextEventTime) {
                 currentCustomer = customerQueue.peek();
@@ -185,17 +200,21 @@ void Simulation::runSimulation() {
             }
         }
 
+        // Update the current simulation time to the time of the next event.
         simulationClock = nextEventTime;
 
+        // Set the total simulation time to the current time.
         totalTime = simulationClock;
     }
 
+    // At the end of the simulation, calculate the remaining idle time for each teller.
     for (int i = 0; i < numTellers; i++) {
         if (tellers[i].isIdle()) {
             tellerIdleTime[i] += totalTime - tellerBecameIdleAt[i];
         }
     }
 }
+
 
 
 bool Simulation::anyTellerActive() {
